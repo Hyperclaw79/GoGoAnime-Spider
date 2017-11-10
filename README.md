@@ -3,7 +3,7 @@ A simple python script to fetch the batch download links to your favorite anime 
 
 Usage
 ---
-Simply enter the gogoanime link to the first episode of the anime you want to download. Then enter the number of episodes and choose the desired quality. The script will attempt to fetch all the direct download links for you and store them into two text files. **Links.txt** will contain a reader-friendly listing while **Links2.txt** will get you a ready to copy-paste listing.
+Simply enter the name of the anime you want to download. Then enter the number of episodes and choose the desired quality. The script will attempt to fetch all the direct download links for you and store them into two text files. **Links.txt** will contain a reader-friendly listing while **Links2.txt** will get you a ready to copy-paste listing.
 
 Bugs
 ---
@@ -11,6 +11,5 @@ Some of the links might not work because of the way they are uploaded to vidstre
 
 Future Updates
 ---
-1. Usage of multithreading.
-2. Search based on anime name instead of pasting the link.
-3. Fetching from an alternate server in case vidstream link fails.
+1. Search based on anime name instead of pasting the link. **✓**
+2. Fetching from an alternate server in case vidstream link fails.
