@@ -2,7 +2,7 @@ import bs4
 from bs4 import BeautifulSoup
 import requests
 import html
-
+import time
         
 def fetcher(url):
    response = requests.get(url)
@@ -61,9 +61,34 @@ def downloader(urlc,i,qual):
       except Exception as e:
          print(str(e))        
 
-url = input('Enter the url to the first episode of the anime:\n')
-chg = url.split("https://")[1].split(".")[0]
-url.replace(chg,"ww3")
+def searcher(name):
+   searchlink = "https://ww3.gogoanime.io/search.html?keyword=" + name.replace(" ","%20")
+   response = requests.get(searchlink)
+   sauce = response.content
+   soup = bs4.BeautifulSoup(sauce,"lxml")
+   listing = soup.find_all('ul',{'class':'items'})
+   if 'category' not in str(listing):
+      print("No such anime found.\n")
+      time.sleep(0.5)
+      return invoker()
+   links = listing[0].find_all('a')
+   shows = []
+   for link in links:
+       title = str(link).split('category/')[1].split('"')[0]
+       if title not in shows:
+           shows.append(title)
+   print('\nList of all the available anime:\n')
+   i = 1
+   for show in shows:
+       print(str(i)+". "+show+"\n")
+       i = i+1
+   choice = input('Enter the corresponding number to choose the anime:\n')
+   return shows[int(choice)-1]
+
+def invoker():
+   anime = searcher(input("Enter the name of the anime you wish to download:\n"))
+   return anime
+url = "https://ww3.gogoanime.io/{}-episode-1".format(invoker())
 with open('Links2.txt','w') as f:
    f.write("")
 with open('Links.txt','w') as f:
