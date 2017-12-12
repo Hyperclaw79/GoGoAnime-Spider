@@ -19,25 +19,29 @@ def fetcher(url):
            pass
         
 def downloader(urlc,i,qual):
-   if urlc == None:
-      print('Episode %d is not out yet.' % i)
-      return "Stop"
-   else:
-      s = ""
-      if qual == "Any":
-          response = requests.get(urlc)
-          sauce = response.content
-          soup = bs4.BeautifulSoup(sauce,"lxml")
+  s = ""
+  if qual == "Any":
+      response = requests.get(urlc)
+      sauce = response.content
+      soup = bs4.BeautifulSoup(sauce,"lxml")
+      try:
           s = "http:"+soup.find('iframe')['src']
-      else:  
-          dl = fetcher(urlc)
+      except:
+          print("{}th episode is yet to be out.".format(i))
+          return "Stop"
+  else:  
+      dl = fetcher(urlc)
+      if dl == None:
+          print('Episode {} is not out yet.'.format(i))
+          return "Stop"
+      else:
           response = requests.get(dl)
           sauce = response.content
           soup = bs4.BeautifulSoup(sauce,"lxml")
           links = soup.body.find_all('a')
           hrefs=[]
           for link in links:
-             hrefs.append(str(link).split('href="')[1].split('>')[0])
+             hrefs.append(link['href'])
           link_qual = [link for link in hrefs if qual in link]
           if len(link_qual) == 0:
              print("Didn't find any link with mentioned quality.\n")
@@ -54,18 +58,18 @@ def downloader(urlc,i,qual):
                    print("Didn't find a direct link. Skipping this episode.")
           else:
              s = link_qual[0]
-      try:   
-         li = html.unescape(s).replace('"','')
-         hook = li.split("title=")[1]
-         alt = hook.replace("(",'').replace(" - mp4)",'-').replace(" ",'-')
-         li = li.replace(hook,alt)
-         with open('Links2.txt','a') as f:
-            f.write(li+"\n\n")
-         with open('Links.txt','a') as f:
-            f.write("\n\nEpisode No. "+str(i)+":\n"+li)
-         print("Episode No. "+str(i)+": "+li)
-      except Exception as e:
-         print(str(e))        
+  try:   
+     li = html.unescape(s).replace('"','')
+     hook = li.split("title=")[1]
+     alt = hook.replace("(",'').replace(" - mp4)",'-').replace(" ",'-')
+     li = li.replace(hook,alt)
+     with open('Links2.txt','a') as f:
+        f.write(li+"\n\n")
+     with open('Links.txt','a') as f:
+        f.write("\n\nEpisode No. "+str(i)+":\n"+li)
+     print("Episode No. "+str(i)+": "+li)
+  except Exception as e:
+     print(str(e))        
 
 def searcher(name):
    searchlink = "https://ww3.gogoanime.io/search.html?keyword=" + name.replace(" ","%20")
@@ -88,18 +92,30 @@ def searcher(name):
    for show in shows:
        print(str(i)+". "+show+"\n")
        i = i+1
-   choice = input('Enter the corresponding number to choose the anime:\n')
-   return shows[int(choice)-1]
+   while True:    
+       choice = input('Enter the corresponding number to choose the anime:\n')
+       try:
+           return shows[int(choice)-1]
+       except:
+           continue
 
 def invoker():
    anime = searcher(input("Enter the name of the anime you wish to download:\n"))
    return anime
-url = "https://ww3.gogoanime.io/{}-episode-1".format(invoker())
+url = "https://ww4.gogoanime.io/{}-episode-1".format(invoker())
 with open('Links2.txt','w') as f:
    f.write("")
 with open('Links.txt','w') as f:
    f.write("")
-num = int(input('Enter the number of episodes:\n'))
+while True:   
+    rng = input('Enter the range of episodes in the format X-Y.\nFor example, 5-15.\n')   
+    start,end = rng.split('-')
+    if start.isdigit() and end.isdigit():
+        break
+start = int(start)
+end = int(end)
+if start > end:
+    start,end = end,start
 while True:
    mode = input('Choose the quality:\n1. 360p\n2. 480p\n3. 720p\n4. Any\n')
    if int(mode) == 1:
@@ -117,8 +133,8 @@ while True:
    else:
        print('Please choose 1, 2 or 3.')
 
-for i in range(num):
-    urlc = url.replace("1",str(i+1),1)
+for i in range(start,end+1):
+    urlc = url.replace("1",str(i),1)
     flag = downloader(urlc,i+1,qual)
     if flag == "Stop":
-       continue
+       break
