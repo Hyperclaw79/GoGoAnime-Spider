@@ -14,4 +14,4 @@ Some of the links might not work because of the way they are uploaded to vidstre
 Future Updates
 ---
 1. Search based on anime name instead of pasting the link. **✓**
-2. Fetching from an alternate server in case vidstream link fails.
+2. Fetching from an alternate server in case vidstream link fails. **✓**
