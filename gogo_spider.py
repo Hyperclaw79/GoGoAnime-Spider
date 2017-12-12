@@ -23,31 +23,37 @@ def downloader(urlc,i,qual):
       print('Episode %d is not out yet.' % i)
       return "Stop"
    else:
-      dl = fetcher(urlc)
-      response = requests.get(dl)
-      sauce = response.content
-      soup = bs4.BeautifulSoup(sauce,"lxml")
-      links = soup.body.find_all('a')
-      hrefs=[]
-      for link in links:
-         hrefs.append(str(link).split('href="')[1].split('>')[0])
-      link_qual = [link for link in hrefs if qual in link]
       s = ""
-      if len(link_qual) == 0:
-         print("Didn't find any link with mentioned quality.\n")
-         link_480 = [link for link in links if "480P" in str(link)]
-         if len(link_480) != 0:
-            print("Fetching 480P instead.\n")
-            s = link_480[0]
-         else:
-            link_360 = [link for link in links if "360P" in str(link)]
-            if len(link_480) != 0:
-               print("Fetching 360P instead.\n")
-               s = link_360[0]
-            else:
-               print("Didn't find a direct link. Skipping this episode.")
-      else:
-         s = link_qual[0]
+      if qual == "Any":
+          response = requests.get(urlc)
+          sauce = response.content
+          soup = bs4.BeautifulSoup(sauce,"lxml")
+          s = "http:"+soup.find('iframe')['src']
+      else:  
+          dl = fetcher(urlc)
+          response = requests.get(dl)
+          sauce = response.content
+          soup = bs4.BeautifulSoup(sauce,"lxml")
+          links = soup.body.find_all('a')
+          hrefs=[]
+          for link in links:
+             hrefs.append(str(link).split('href="')[1].split('>')[0])
+          link_qual = [link for link in hrefs if qual in link]
+          if len(link_qual) == 0:
+             print("Didn't find any link with mentioned quality.\n")
+             link_480 = [link for link in links if "480P" in str(link)]
+             if len(link_480) != 0:
+                print("Fetching 480P instead.\n")
+                s = link_480[0]
+             else:
+                link_360 = [link for link in links if "360P" in str(link)]
+                if len(link_480) != 0:
+                   print("Fetching 360P instead.\n")
+                   s = link_360[0]
+                else:
+                   print("Didn't find a direct link. Skipping this episode.")
+          else:
+             s = link_qual[0]
       try:   
          li = html.unescape(s).replace('"','')
          hook = li.split("title=")[1]
@@ -95,7 +101,7 @@ with open('Links.txt','w') as f:
    f.write("")
 num = int(input('Enter the number of episodes:\n'))
 while True:
-   mode = input('Choose the quality:\n1. 360p\n2. 480p\n3. 720p\n')
+   mode = input('Choose the quality:\n1. 360p\n2. 480p\n3. 720p\n4. Any\n')
    if int(mode) == 1:
       qual = "360P"
       break
@@ -105,6 +111,9 @@ while True:
    elif int(mode) == 3:
       qual = "720P"
       break
+   elif int(mode) == 4:
+      qual = "Any"
+      break     
    else:
        print('Please choose 1, 2 or 3.')
 
